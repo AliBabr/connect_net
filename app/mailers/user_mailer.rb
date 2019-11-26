@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class UserMailer < ApplicationMailer
-  default from: 'spur@gmail.com'
+  default from: 'connect@gmail.com'
   #Makin email
   def forgot_password(user, token)
     @user = user

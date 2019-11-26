@@ -6,7 +6,9 @@ Rails.application.routes.draw do
       resources :users do
         collection do
           post :sign_in
+          post :sign_in_with_social
           post :sign_up
+          post :sign_up_with_social
           post :log_out
           post :update_password
           post :update_account
@@ -19,7 +21,7 @@ Rails.application.routes.draw do
         end
       end
       post '/notifications/toggle_notification', to: 'notifications#toggle_notification'
-      resources :places, only: :index
+      resources :categories
       resources :history, only: [:create, :index]
       end
     end

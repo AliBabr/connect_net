@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Api::V1::UsersController < ApplicationController
   before_action :authenticate, only: %i[update_account update_password user_data log_out get_user] # callback for validating user
   before_action :forgot_validation, only: [:forgot_password]
@@ -10,9 +12,10 @@ class Api::V1::UsersController < ApplicationController
     else
       user = User.find_by_email(params[:email])
       if user.present? && user.valid_password?(params[:password])
-        image_url = ''
+        image_url = ''; category = '';
+        category = user.role.category.title if user.role.category.present?
         image_url = url_for(user.profile_photo) if user.profile_photo.attached?
-        render json: { email: user.email, first_name: user.first_name, last_name: user.last_name, profile_photo: image_url ,pickup_notification: user.pickup_notification, arrival_notification: user.arrival_notification, 'UUID' => user.id, 'Authentication' => user.authentication_token }, status: 200
+        render json: { email: user.email, first_name: user.first_name, last_name: user.last_name, city: user.city, country: user.country, lat: user.lat, long: user.long,  profile_photo: image_url, role: user.role.role_type, category: category, 'UUID' => user.id, 'Authentication' => user.authentication_token }, status: 200
       else
         render json: { message: 'No Email and Password matching that account were found' }, status: 400
       end
@@ -21,23 +24,67 @@ class Api::V1::UsersController < ApplicationController
     render json: { message: 'Error: Something went wrong... ' }, status: 400
   end
 
+  def sign_in_with_social
+    if params[:social_token].present? && params[:coming_from].present?
+      user = User.find_by_social_token(params[:social_token])
+      if user.present?
+        image_url = ''; category = '';
+        category = user.role.category.title if user.role.category.present?
+        image_url = url_for(user.profile_photo) if user.profile_photo.attached?
+        render json: { email: user.email, first_name: user.first_name, last_name: user.last_name, profile_photo: image_url, city: user.city, country: user.country, lat: user.lat, long: user.long, role: user.role.role_type , category: category, 'UUID' => user.id, 'Authentication' => user.authentication_token }, status: 200
+      else
+        render json: { message: 'No socail token matching that account were found' }, status: 400
+      end
+    else
+      render json: { message: "Social token and coming from can't be blank" }, status: 400
+    end
+  rescue StandardError => e # rescue if any exception occurr
+    render json: { message: "Error: Something went wrong... #{e}" }, status: 400
+  end
+
   def get_user
-    image_url = ''
+    image_url = ''; category = '';
+    category = @user.role.category.title if @user.role.category.present?
     image_url = url_for(@user.profile_photo) if @user.profile_photo.attached?
-    render json: {first_name: @user.first_name, last_name: @user.last_name, email: @user.email, profile_photo: image_url, pickup_notification: @user.pickup_notification, arrival_notification: @user.arrival_notification }, status: 200
+    render json: { first_name: @user.first_name, last_name: @user.last_name, email: @user.email, profile_photo: image_url, role: @user.role.role_type , category: category, city: @user.city, country: @user.country, lat: @user.lat, long: @user.long }, status: 200
   rescue StandardError => e # rescue if any exception occurr
     render json: { message: 'Error: Something went wrong... ' }, status: 400
   end
 
+  def sign_up_with_social
+    if params[:coming_from].present? && params[:social_token].present?
+      if params[:role].present?
+        user = User.new(user_params); user.id = SecureRandom.uuid # genrating secure uuid token
+        if user.save
+          sign_up_helper(user)
+        else
+          render json: user.errors.messages, status: 400
+        end
+      else
+        render json: { message: "Role can't blank.." }, status: 400
+      end
+    else
+      render json: { message: "Social Token & coming from can't blank.." }, status: 400
+    end
+  rescue StandardError => e # rescue if any exception occurr
+    render json: { message: "Error: Something went wrong... #{e}" }, status: 400
+  end
+
   # Method which accepts parameters from user and save data in db
   def sign_up
-    user = User.new(user_params); user.id = SecureRandom.uuid # genrating secure uuid token
-    if user.save
-      image_url = ''
-      image_url = url_for(user.profile_photo) if user.profile_photo.attached?
-      render json: { email: user.email, first_name: user.first_name, last_name: user.last_name, profile_photo: image_url, pickup_notification: user.pickup_notification, arrival_notification: user.arrival_notification , 'UUID' => user.id, 'Authentication' => user.authentication_token }, status: 200
+    if params[:password].present?
+      if params[:role].present?
+        user = User.new(user_params); user.id = SecureRandom.uuid # genrating secure uuid token
+        if user.save
+          sign_up_helper(user)
+        else
+          render json: user.errors.messages, status: 400
+        end
+      else
+        render json: { message: 'Role should be present' }, status: 400
+      end
     else
-      render json: user.errors.messages, status: 400
+      render json: { message: "password can't be blank!" }, status: 400
     end
   rescue StandardError => e # rescue if any exception occurr
     render json: { message: "Error: Something went wrong... #{e}" }, status: 400
@@ -57,9 +104,10 @@ class Api::V1::UsersController < ApplicationController
     if @user.errors.any?
       render json: @user.errors.messages, status: 400
     else
-      image_url = ''
+      image_url = ''; category = '';
+      category = @user.role.category.title if @user.role.category.present?
       image_url = url_for(@user.profile_photo) if @user.profile_photo.attached?
-      render json: {first_name: @user.first_name, last_name: @user.last_name, email: @user.email, profile_photo: image_url, pickup_notification: @user.pickup_notification, arrival_notification: @user.arrival_notification }, status: 200
+      render json: { first_name: @user.first_name, last_name: @user.last_name, email: @user.email, profile_photo: image_url, role: @user.role.role_type , category: category, city: @user.city, country: @user.country, lat: @user.lat, long: @user.long }, status: 200
     end
   rescue StandardError => e
     render json: { message: 'Error: Something went wrong... ' }, status: :bad_request
@@ -68,11 +116,15 @@ class Api::V1::UsersController < ApplicationController
   # Method take current password and new password and update password
   def update_password
     if params[:current_password].present? && @user.valid_password?(params[:current_password])
-      @user.update(password: params[:new_password])
-      if @user.errors.any?
-        render json: @user.errors.messages, status: 400
+      if params[:new_password].present?
+        @user.update(password: params[:new_password])
+        if @user.errors.any?
+          render json: @user.errors.messages, status: 400
+        else
+          render json: { message: 'Password updated successfully!' }, status: 200
+        end
       else
-        render json: { message: 'Password updated successfully!' }, status: 200
+        render json: { message: "password can't be blank!" }, status: 400
       end
     else
       render json: { message: 'Current Password is not present or invalid!' }, status: 400
@@ -111,7 +163,7 @@ class Api::V1::UsersController < ApplicationController
   private
 
   def user_params # permit user params
-    params.permit(:email, :password, :first_name, :last_name, :profile_photo)
+    params.permit(:email, :password, :first_name, :last_name, :profile_photo, :city, :lat, :long, :coming_from, :social_token, :country)
   end
 
   # Helper method for forgot password method
@@ -137,5 +189,23 @@ class Api::V1::UsersController < ApplicationController
       @error = 'Password and confirm password should match'
       render 'reset'
     end
+  end
+
+  def sign_up_helper(user)
+    role = Role.new(role_type: params[:role], user_id: user.id)
+    if params[:role] == 'professional'
+      if params[:category_id].present? && Category.find_by_id(params[:category_id].to_i).present?
+        role.category = Category.find_by_id(params[:category_id].to_i)
+      end
+    end
+    role.save
+    if user.role.category.present?
+      category = user.role.category.title
+    else
+      category = ''
+    end
+    image_url = ''
+    image_url = url_for(user.profile_photo) if user.profile_photo.attached?
+    render json: { email: user.email, first_name: user.first_name, last_name: user.last_name, profile_photo: image_url, role: user.role.role_type, category: category,  city: user.city, country: user.country, lat: user.lat, long: user.long, 'UUID' => user.id, 'Authentication' => user.authentication_token }, status: 200
   end
 end

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_11_20_173540) do
+ActiveRecord::Schema.define(version: 2019_11_26_180859) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -36,23 +36,19 @@ ActiveRecord::Schema.define(version: 2019_11_20_173540) do
     t.index ["key"], name: "index_active_storage_blobs_on_key", unique: true
   end
 
-  create_table "histories", force: :cascade do |t|
-    t.string "place_type"
-    t.string "lat"
-    t.string "lng"
-    t.string "place_id"
+  create_table "categories", force: :cascade do |t|
+    t.string "title"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.string "user_id"
-    t.string "name"
   end
 
-  create_table "preferences", force: :cascade do |t|
-    t.jsonb "filters"
+  create_table "roles", force: :cascade do |t|
+    t.boolean "active", default: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.integer "price_level"
     t.string "user_id"
+    t.string "role_type"
+    t.bigint "category_id"
   end
 
   create_table "users", id: :serial, force: :cascade do |t|
@@ -65,14 +61,18 @@ ActiveRecord::Schema.define(version: 2019_11_20_173540) do
     t.datetime "remember_created_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.string "authentication_token", limit: 30
+    t.string "social_token", limit: 30
     t.string "reset_token"
-    t.string "uuid"
-    t.boolean "pickup_notification", default: false
-    t.boolean "arrival_notification", default: false
-    t.index ["authentication_token"], name: "index_users_on_authentication_token", unique: true
+    t.boolean "notification_status", default: false
+    t.string "city"
+    t.string "country"
+    t.string "lat"
+    t.string "long"
+    t.string "coming_from"
+    t.string "authentication_token"
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
+    t.index ["social_token"], name: "index_users_on_social_token", unique: true
   end
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
