@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 Rails.application.routes.draw do
   # devise_for :users
   # For details on the DSL available within this file, see http://guides.rubyonrails.org/routing.html
@@ -20,12 +22,16 @@ Rails.application.routes.draw do
           get :reset
         end
       end
-      post '/notifications/toggle_notification', to: 'notifications#toggle_notification'
       resources :categories
-      resources :history, only: [:create, :index]
+      resources :posts
+      resources :likes
+      resources :comments do
+        collection do
+          put :edit_comment
+        end
       end
     end
+  end
 
-  root to: "home#index"
-
+  root to: 'home#index'
 end
