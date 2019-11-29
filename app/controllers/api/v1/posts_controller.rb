@@ -27,9 +27,10 @@ class Api::V1::PostsController < ApplicationController
     posts = Post.all; all_posts = []
     posts.each do |post|
       media = media_urls(post)
+      comments = get_all_comments(post)
       image_url = ''
       image_url = url_for(post.user.profile_photo) if post.user.profile_photo.attached?
-      all_posts << { first_name: post.user.first_name, last_name: post.user.last_name, profile_photo: image_url, post_id: post.id, text: post.text, media: media }
+      all_posts << { first_name: post.user.first_name, last_name: post.user.last_name, profile_photo: image_url, post_id: post.id, text: post.text, media: media, comments: comments, total_likes: post.likes.count }
     end
     render json: all_posts, status: 200
   rescue StandardError => e
@@ -67,4 +68,16 @@ class Api::V1::PostsController < ApplicationController
     end
     media
   end
+
+  def get_all_comments(post)
+    comments = post.comments
+    all_comments = []
+    comments.each do |comment|
+      image_url = ''
+      image_url = url_for(comment.user.profile_photo) if comment.user.profile_photo.attached?
+      all_comments << {first_name: comment.user.first_name, last_name: comment.user.last_name, profile_photo: image_url, comment_id: comment.id, comment_text: comment.text}
+    end
+    return all_comments
+  end
+
 end
