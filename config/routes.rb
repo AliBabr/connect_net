@@ -22,7 +22,7 @@ Rails.application.routes.draw do
       end
       post '/notifications/toggle_notification', to: 'notifications#toggle_notification'
       resources :categories
-      resources :history, only: [:create, :index]
+      resources :posts
       end
     end
 
