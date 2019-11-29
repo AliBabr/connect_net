@@ -13,8 +13,9 @@ class Api::V1::PostsController < ApplicationController
       post.media = images
     end
     if post.save
-      media = media_urls(post)
-      render json: { id: post.id, title: post.text, first_name: @user.first_name, last_name: @user.last_name, user_id: @user.id, media: media }, status: 200
+      media = media_urls(post); image_url = '';
+      image_url = url_for(@user.profile_photo) if @user.profile_photo.attached?
+      render json: { first_name: @user.first_name, last_name: @user.last_name, profile_photo: image_url, post_id: post.id, text: post.text , media: media }, status: 200
     else
       render json: post.errors.messages, status: 400
     end
@@ -26,7 +27,9 @@ class Api::V1::PostsController < ApplicationController
     posts = Post.all; all_posts = []
     posts.each do |post|
       media = media_urls(post)
-      all_posts << { id: post.id, title: post.text, first_name: post.user.first_name, last_name: post.user.last_name, user_id: post.user.id, media: media }
+      image_url = ''
+      image_url = url_for(post.user.profile_photo) if post.user.profile_photo.attached?
+      all_posts << { first_name: post.user.first_name, last_name: post.user.last_name, profile_photo: image_url, post_id: post.id, text: post.text, media: media }
     end
     render json: all_posts, status: 200
   rescue StandardError => e
