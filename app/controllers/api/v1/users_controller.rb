@@ -53,9 +53,10 @@ class Api::V1::UsersController < ApplicationController
 
   def sign_up_with_social
     if params[:coming_from].present? && params[:social_token].present?
-      if params[:role].present?
+      if params[:role].present? && params[:security_images].present?
         user = User.new(user_params); user.id = SecureRandom.uuid # genrating secure uuid token
         if user.save
+          set_security_images(user)
           sign_up_helper(user)
         else
           render json: user.errors.messages, status: 400
@@ -73,15 +74,16 @@ class Api::V1::UsersController < ApplicationController
   # Method which accepts parameters from user and save data in db
   def sign_up
     if params[:password].present?
-      if params[:role].present?
+      if params[:role].present? && params[:security_images].present?
         user = User.new(user_params); user.id = SecureRandom.uuid # genrating secure uuid token
         if user.save
+          set_security_images(user)
           sign_up_helper(user)
         else
           render json: user.errors.messages, status: 400
         end
       else
-        render json: { message: 'Role should be present' }, status: 400
+        render json: { message: 'Role & security should be present' }, status: 400
       end
     else
       render json: { message: "password can't be blank!" }, status: 400
@@ -204,8 +206,28 @@ class Api::V1::UsersController < ApplicationController
     else
       category = ''
     end
-    image_url = ''
+    security_images = security_images_urls(user); image_url = '';
     image_url = url_for(user.profile_photo) if user.profile_photo.attached?
-    render json: { email: user.email, first_name: user.first_name, last_name: user.last_name, profile_photo: image_url, role: user.role.role_type, category: category,  city: user.city, country: user.country, lat: user.lat, long: user.long, 'UUID' => user.id, 'Authentication' => user.authentication_token }, status: 200
+    render json: { email: user.email, first_name: user.first_name, last_name: user.last_name, profile_photo: image_url, role: user.role.role_type, category: category,  city: user.city, country: user.country, lat: user.lat, long: user.long, security_images: security_images, 'UUID' => user.id, 'Authentication' => user.authentication_token }, status: 200
   end
+
+  def set_security_images(user)
+    security_images = UserSecurityImage.new()
+    images = params[:security_images].values
+    security_images.images = images
+    security_images.user = user
+    security_images.save
+  end
+
+
+  def security_images_urls(user)
+    images = []
+    if user.user_security_image.images.attached?
+      user.user_security_image.images.each do |photo|
+        images << url_for(photo)
+      end
+    end
+    images
+  end
+
 end
