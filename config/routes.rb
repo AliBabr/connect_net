@@ -30,6 +30,11 @@ Rails.application.routes.draw do
           put :edit_comment
         end
       end
+      resources :events do
+        collection do
+          put :set_going
+        end
+      end
     end
   end
 
