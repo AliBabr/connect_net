@@ -8,6 +8,7 @@ class User < ApplicationRecord
          :recoverable, :rememberable, :validatable
 
   has_one :role, dependent: :destroy
+  has_one :user_security_image, dependent: :destroy
   has_many :posts, dependent: :destroy
   has_many :events, dependent: :destroy
   has_many :likes, dependent: :destroy
