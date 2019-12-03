@@ -35,6 +35,13 @@ Rails.application.routes.draw do
           put :set_going
         end
       end
+      resources :jobs do
+        collection do
+          post :apply
+          get :get_all_proposals
+        end
+      end
+
     end
   end
 
