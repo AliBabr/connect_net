@@ -23,11 +23,24 @@ Rails.application.routes.draw do
         end
       end
       resources :categories
-      resources :videos
-      resources :musics
-      resources :articles
+      resources :videos do
+        collection do
+          put :add_viewer
+        end
+      end
+      resources :musics do
+        collection do
+          put :add_viewer
+        end
+      end
+      resources :articles do
+        collection do
+          put :add_viewer
+        end
+      end
       resources :posts
       resources :likes
+      resources :home
       resources :comments do
         collection do
           put :edit_comment
