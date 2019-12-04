@@ -25,6 +25,7 @@ Rails.application.routes.draw do
       resources :categories
       resources :videos
       resources :musics
+      resources :articles
       resources :posts
       resources :likes
       resources :comments do

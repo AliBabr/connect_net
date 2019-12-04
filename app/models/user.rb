@@ -16,6 +16,7 @@ class User < ApplicationRecord
   has_many :comments, dependent: :destroy
   has_many :videos, dependent: :destroy
   has_many :musics, dependent: :destroy
+  has_many :articles, dependent: :destroy
   has_one_attached :profile_photo
   
 
