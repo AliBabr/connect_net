@@ -24,6 +24,7 @@ Rails.application.routes.draw do
       end
       resources :categories
       resources :videos
+      resources :musics
       resources :posts
       resources :likes
       resources :comments do
