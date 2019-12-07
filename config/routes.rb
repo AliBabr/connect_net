@@ -55,11 +55,12 @@ Rails.application.routes.draw do
         collection do
           post :apply
           get :get_all_proposals
+          post :place_order
+          put :confirm_completion
         end
       end
-
     end
   end
 
-  root to: 'home#index'
+  root to: "home#index"
 end
