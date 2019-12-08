@@ -59,6 +59,12 @@ Rails.application.routes.draw do
           put :confirm_completion
         end
       end
+      resources :skills do
+        collection do
+          put :add_skill
+          put :remove_skill
+        end
+      end
     end
   end
 
