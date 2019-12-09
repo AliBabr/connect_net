@@ -20,6 +20,9 @@ class User < ApplicationRecord
   has_one_attached :profile_photo
   has_and_belongs_to_many :skills
 
+  reverse_geocoded_by :latitude, :longitude
+  after_validation :reverse_geocode
+
   private
 
   def after_successful_token_authentication
