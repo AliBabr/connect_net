@@ -58,6 +58,8 @@ Rails.application.routes.draw do
           get :get_all_proposals
           post :place_order
           put :confirm_completion
+          put :deliver_order
+          get :get_order
         end
       end
       resources :skills do

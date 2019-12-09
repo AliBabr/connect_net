@@ -12,6 +12,7 @@ class User < ApplicationRecord
   has_many :posts, dependent: :destroy
   has_many :jobs, dependent: :destroy
   has_many :events, dependent: :destroy
+  has_many :applications, dependent: :destroy
   has_many :likes, dependent: :destroy
   has_many :comments, dependent: :destroy
   has_many :videos, dependent: :destroy

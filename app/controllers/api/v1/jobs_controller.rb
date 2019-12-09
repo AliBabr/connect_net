@@ -92,6 +92,36 @@ class Api::V1::JobsController < ApplicationController
     render json: { message: "Error: Something went wrong... " }, status: :bad_request
   end
 
+  def deliver_order
+    if params[:job_id].present? && Job.find_by_id(params[:job_id]).present?
+      if params[:order_source_files].present?
+        source = params[:order_source_files].values
+        job = Job.find_by_id(params[:job_id])
+        order = job.order
+        order.order_source_files = source
+        order.save
+        render json: { message: "Project has been delivered successfully..!" }
+      else
+        render json: { message: "source files are not present" }, status: 400
+      end
+    else
+      render json: { message: "job id invalid or empty..!" }, status: 400
+    end
+  end
+
+  def get_order
+    if params[:job_id].present? && Job.find_by_id(params[:job_id]).present?
+      job = Job.find_by_id(params[:job_id])
+      order = job.order
+      order_bundle = []
+      sources = get_source_urls(order)
+      order_bundle << { name: order.name, price: order.price, source: sources }
+      render json: order_bundle, status: 200
+    else
+      render json: { message: "job id invalid or empty..!" }, status: 400
+    end
+  end
+
   def confirm_completion
     if params[:job_id].present? && Job.find_by_id(params[:job_id]).present?
       if params[:payment_status].present? && params[:payment_status] == "done" || params[:payment_status] == "Done"
@@ -126,7 +156,7 @@ class Api::V1::JobsController < ApplicationController
   end
 
   def order_params
-    params.permit(:price, :completion_time)
+    params.permit(:name, :price, :completion_time)
   end
 
   def media_urls(job)
@@ -148,5 +178,15 @@ class Api::V1::JobsController < ApplicationController
       all_applications << { first_name: application.user.first_name, last_name: application.user.last_name, profile_photo: image_url, application_id: application.id, cover_description: application.cover_description, bid_price: application.bid_price, required_days: application.required_days }
     end
     return all_applications
+  end
+
+  def get_source_urls(order)
+    sources = []
+    if order.order_source_files.attached?
+      order.order_source_files.each do |source|
+        sources << url_for(source)
+      end
+    end
+    sources
   end
 end
