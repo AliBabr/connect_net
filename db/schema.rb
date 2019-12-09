@@ -174,9 +174,9 @@ ActiveRecord::Schema.define(version: 2019_12_09_074952) do
     t.string "country"
     t.string "coming_from"
     t.string "authentication_token"
-    t.string "address"
     t.float "latitude"
     t.float "longitude"
+    t.string "address"
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
     t.index ["social_token"], name: "index_users_on_social_token", unique: true
