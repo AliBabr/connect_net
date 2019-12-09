@@ -1,3 +1,3 @@
 class Category < ApplicationRecord
-  has_one :role
+  has_many :roles
 end

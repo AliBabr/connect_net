@@ -41,6 +41,7 @@ Rails.application.routes.draw do
       resources :posts
       resources :likes
       resources :home
+      resources :search
       resources :comments do
         collection do
           put :edit_comment

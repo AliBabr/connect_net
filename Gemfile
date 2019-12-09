@@ -11,6 +11,8 @@ gem 'active_model_serializers', '~> 0.10.0'
 gem 'httparty', '~> 0.13.7'
 # Use postgresql as the database for Active Record
 gem 'pg'
+gem 'geokit'
+gem 'geocoder', '~> 1.3'
 # use figaro for environment variables
 gem 'figaro'
 # Use pry for debugging purposes
