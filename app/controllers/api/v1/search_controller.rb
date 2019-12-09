@@ -29,7 +29,14 @@ class Api::V1::SearchController < ApplicationController
     if params[:field].present?
       users = field_search(users)
     end
-    render json: users, status: 200
+
+    result = []
+    users.each do |user|
+      image_url = ""
+      image_url = url_for(user.profile_photo) if user.profile_photo.attached?
+      result << { user_id: user.id, first_name: user.first_name, last_name: user.last_name, latitude: user.latitude, longitude: user.longitude, city: user.city, country: user.country, profile_photo: image_url, total_projects: user.applications.where(status: "complete").count }
+    end
+    render json: result, status: 200
   rescue StandardError => e
     render json: { message: "Error: Something went wrong... " }, status: :bad_request
   end
