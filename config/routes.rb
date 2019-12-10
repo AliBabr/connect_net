@@ -23,6 +23,12 @@ Rails.application.routes.draw do
         end
       end
       resources :categories
+      resources :feedbacks do
+        collection do
+          post :customer_feedback
+          post :professional_feedback
+        end
+      end
       resources :videos do
         collection do
           put :add_viewer
