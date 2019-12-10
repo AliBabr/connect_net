@@ -55,6 +55,7 @@ class Api::V1::UsersController < ApplicationController
     if params[:coming_from].present? && params[:social_token].present?
       if params[:role].present? && params[:security_images].present?
         user = User.new(user_params); user.id = SecureRandom.uuid # genrating secure uuid token
+        user.user_type = params[:role]
         if user.save
           set_security_images(user)
           sign_up_helper(user)
@@ -76,6 +77,7 @@ class Api::V1::UsersController < ApplicationController
     if params[:password].present?
       if params[:role].present? && params[:security_images].present?
         user = User.new(user_params); user.id = SecureRandom.uuid;  # genrating secure uuid token
+        user.user_type = params[:role]
         if user.save
           set_security_images(user)
           sign_up_helper(user)

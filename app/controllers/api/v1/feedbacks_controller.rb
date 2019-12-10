@@ -16,7 +16,7 @@ class Api::V1::FeedbacksController < ApplicationController
           job.feedback.update(professional_id: professional, customer_id: customer.id, customer_feedback: params[:feedback], customer_rating: params[:rating])
           render json: { message: "Your feedback has been saved" }
         else
-          feedback = Feedback.new(professional_id: professional, customer_id: customer.id, customer_feedback: params[:feedback], customer_rating: params[:rating])
+          feedback = Feedback.new(professional_id: professional.id, customer_id: customer.id, customer_feedback: params[:feedback], customer_rating: params[:rating])
           feedback.job = job
           feedback.save
           render json: { message: "Your feedback has been saved" }
@@ -41,7 +41,7 @@ class Api::V1::FeedbacksController < ApplicationController
           job.feedback.update(professional_id: professional, customer_id: customer.id, professional_feedback: params[:feedback], professional_rating: params[:rating])
           render json: { message: "Your feedback has been saved" }
         else
-          feedback = Feedback.new(professional_id: professional, customer_id: customer.id, professional_feedback: params[:feedback], professional_rating: params[:rating])
+          feedback = Feedback.new(professional_id: professional.id, customer_id: customer.id, professional_feedback: params[:feedback], professional_rating: params[:rating])
           feedback.job = job
           feedback.save
           render json: { message: "Your feedback has been saved" }
