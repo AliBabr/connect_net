@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_12_09_204531) do
+ActiveRecord::Schema.define(version: 2019_12_10_202401) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -80,6 +80,18 @@ ActiveRecord::Schema.define(version: 2019_12_09_204531) do
     t.string "event_time"
   end
 
+  create_table "feedbacks", force: :cascade do |t|
+    t.string "professional_id"
+    t.string "customer_id"
+    t.string "customer_feedback"
+    t.string "professional_feedback"
+    t.integer "customer_rating"
+    t.integer "professional_rating"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "job_id"
+  end
+
   create_table "goings", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
@@ -130,6 +142,13 @@ ActiveRecord::Schema.define(version: 2019_12_09_204531) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "user_id"
+  end
+
+  create_table "professional_feedbacks", force: :cascade do |t|
+    t.string "text"
+    t.integer "rating"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "roles", force: :cascade do |t|
