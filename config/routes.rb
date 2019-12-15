@@ -34,6 +34,13 @@ Rails.application.routes.draw do
           put :add_viewer
         end
       end
+      resources :payment do
+        collection do
+          put :save_card_token
+          put :save_stripe_connect_user
+          put :process_paymnt
+        end
+      end
       resources :musics do
         collection do
           put :add_viewer
