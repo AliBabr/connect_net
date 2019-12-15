@@ -29,6 +29,12 @@ Rails.application.routes.draw do
           post :professional_feedback
         end
       end
+      resources :abouts do
+        collection do
+          put :update_about
+          get :get_about
+        end
+      end
       resources :videos do
         collection do
           put :add_viewer

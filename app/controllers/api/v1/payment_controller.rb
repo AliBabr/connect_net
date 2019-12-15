@@ -43,7 +43,7 @@ class Api::V1::PaymentController < ApplicationController
       fee = calculate_fee(price)
       response = StripePayment.new(@user, professional).charge(price.to_i, fee)
       if response.present?
-        render json: {message: "Payment has been successfully processed..!"}, status: 200
+        render json: { message: "Payment has been successfully processed..!" }, status: 200
       else
         render json: { message: "Something went wrong with your account please check..." }, status: 401
       end
@@ -70,10 +70,9 @@ class Api::V1::PaymentController < ApplicationController
     end
   end
 
-
   def calculate_fee(price)
     price = price
-    fee = (15.to_f\100.to_f)*price.to_f
+    fee = (15.to_f / 100.to_f) * price.to_f
     return fee
   end
 end
