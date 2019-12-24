@@ -16,6 +16,7 @@ gem 'geocoder', '~> 1.3'
 # use figaro for environment variables
 gem 'figaro'
 gem 'stripe'
+gem 'twilio-ruby'
 # Use pry for debugging purposes
  gem 'pry'
  gem "slim-rails"

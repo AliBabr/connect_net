@@ -17,6 +17,7 @@ Rails.application.routes.draw do
           post :forgot_password
           post :reset_password
           get :get_user
+          get :get_twillio_token
         end
         member do
           get :reset
