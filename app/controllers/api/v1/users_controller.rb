@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class Api::V1::UsersController < ApplicationController
-  before_action :authenticate, only: %i[update_account update_password user_data log_out get_user] # callback for validating user
+  before_action :authenticate, only: %i[update_account update_password user_data log_out get_user get_twillio_token] # callback for validating user
   before_action :forgot_validation, only: [:forgot_password]
   before_action :before_reset, only: [:reset_password]
 
@@ -162,6 +162,29 @@ class Api::V1::UsersController < ApplicationController
     end
   rescue StandardError => e
     render json: { message: "Error: Something went wrong... " }, status: :bad_request
+  end
+
+  def get_twillio_token
+    if @user.twillio_token.present?
+      render json: { identity: @user.email, token: @user.twillio_token }, status: 200
+    else
+      identity = @user.email
+      grant = Twilio::JWT::AccessToken::ChatGrant.new
+      grant.service_sid = ENV["TWILIO_CHAT_SERVICE_SID"]
+      token = Twilio::JWT::AccessToken.new(
+        ENV["TWILIO_ACCOUNT_SID"],
+        ENV["TWILIO_API_KEY"],
+        ENV["TWILIO_API_SECRET"],
+        [grant],
+        identity: identity,
+      )
+      if token.present?
+        @user.update(twillio_token: token.to_jwt)
+        render json: { identity: identity, token: token.to_jwt }, status: 200
+      else
+        render json: { message: "something went wrong" }, status: 401
+      end
+    end
   end
 
   private
