@@ -2,7 +2,7 @@
 
 class Api::V1::AboutsController < ApplicationController
   before_action :authenticate
-  before_action :is_admin
+  before_action :is_admin, only: %i[create update_about]
 
   # methode that enable disable user notification status
   def create

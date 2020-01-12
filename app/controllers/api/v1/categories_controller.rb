@@ -3,8 +3,7 @@
 class Api::V1::CategoriesController < ApplicationController
   before_action :authenticate
   before_action :set_category, only: %i[destroy]
-  before_action :is_admin, only: %i[create index destroy]
-
+  before_action :is_admin, only: %i[create destroy]
 
   # methode that enable disable user notification status
   def create
@@ -15,21 +14,21 @@ class Api::V1::CategoriesController < ApplicationController
       render json: { id: category.id, title: category.title }, status: 200
     end
   rescue StandardError => e
-    render json: { message: 'Error: Something went wrong... ' }, status: :bad_request
+    render json: { message: "Error: Something went wrong... " }, status: :bad_request
   end
 
   def index
     categories = Category.all
     render json: categories, status: 200
   rescue StandardError => e
-    render json: { message: 'Error: Something went wrong... ' }, status: :bad_request
+    render json: { message: "Error: Something went wrong... " }, status: :bad_request
   end
 
   def destroy
     @category.destroy
-    render json: { message: 'category deleted successfully!' }, status: 200
+    render json: { message: "category deleted successfully!" }, status: 200
   rescue StandardError => e # rescu if any exception occure
-    render json: { message: 'Error: Something went wrong... ' }, status: :bad_request
+    render json: { message: "Error: Something went wrong... " }, status: :bad_request
   end
 
   private
@@ -39,15 +38,15 @@ class Api::V1::CategoriesController < ApplicationController
     if @category.present?
       return true
     else
-      render json: { message: 'category Not found!' }, status: 404
+      render json: { message: "category Not found!" }, status: 404
     end
   end
 
   def is_admin
-    if @user.role.role_type == 'admin'
+    if @user.role.role_type == "admin"
       return true
     else
-      render json: { message: "Only admin can create/update/destroy category!"}
+      render json: { message: "Only admin can create/update/destroy category!" }
     end
   end
 

@@ -62,6 +62,20 @@ class Api::V1::SearchController < ApplicationController
     end
   end
 
+  def all_users
+    users = User.where(user_type: "professional")
+    result = []
+    users.each do |user|
+      image_url = ""
+      image_url = url_for(user.profile_photo) if user.profile_photo.attached?
+      rating = get_rating(user)
+      result << { user_id: user.id, first_name: user.first_name, last_name: user.last_name, latitude: user.latitude, longitude: user.longitude, city: user.city, country: user.country, profile_photo: image_url, total_projects: user.applications.where(status: "complete").count, rating: rating }
+    end
+    render json: result, status: 200
+  rescue StandardError => e
+    render json: { message: "Error: Something went wrong... " }, status: :bad_request
+  end
+
   private
 
   def city_search(users)

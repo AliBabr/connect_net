@@ -45,8 +45,6 @@ Rails.application.configure do
     domain:               'gmail.com',
     user_name:            'botsystemss@gmail.com',
     password:             'bot@system123',
-    # user_name:            'spur10.system@gmail.com',
-    # password:             'spur12345678',
     authentication:       'plain'
     # enable_starttls_auto: true
     # ^ ^ remove this option ^ ^

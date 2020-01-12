@@ -64,6 +64,7 @@ Rails.application.routes.draw do
       resources :search do
         collection do
           get :search_by_user_id
+          get :all_users
         end
       end
       resources :comments do
