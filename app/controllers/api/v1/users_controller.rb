@@ -53,11 +53,13 @@ class Api::V1::UsersController < ApplicationController
 
   def sign_up_with_social
     if params[:coming_from].present? && params[:social_token].present?
-      if params[:role].present? && params[:security_images].present?
+      if params[:role].present?
         user = User.new(user_params); user.id = SecureRandom.uuid # genrating secure uuid token
         user.user_type = params[:role]
         if user.save
-          set_security_images(user)
+          if params[:security_images].present?
+            set_security_images(user)
+          end
           sign_up_helper(user)
         else
           render json: user.errors.messages, status: 400
@@ -75,11 +77,13 @@ class Api::V1::UsersController < ApplicationController
   # Method which accepts parameters from user and save data in db
   def sign_up
     if params[:password].present?
-      if params[:role].present? && params[:security_images].present?
+      if params[:role].present?
         user = User.new(user_params); user.id = SecureRandom.uuid;  # genrating secure uuid token
         user.user_type = params[:role]
         if user.save
-          set_security_images(user)
+          if params[:security_images].present?
+            set_security_images(user)
+          end
           sign_up_helper(user)
         else
           render json: user.errors.messages, status: 400
@@ -246,9 +250,11 @@ class Api::V1::UsersController < ApplicationController
 
   def security_images_urls(user)
     images = []
-    if user.user_security_image.images.attached?
-      user.user_security_image.images.each do |photo|
-        images << url_for(photo)
+    if user.user_security_image.present?
+      if user.user_security_image.images.attached?
+        user.user_security_image.images.each do |photo|
+          images << url_for(photo)
+        end
       end
     end
     images

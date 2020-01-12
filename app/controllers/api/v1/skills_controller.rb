@@ -32,10 +32,15 @@ class Api::V1::SkillsController < ApplicationController
   end
 
   def add_skill
-    if params[:id].present? && Skill.find_by_id(params[:id]).present?
-      @user.skills << Skill.find_by_id(params[:id])
-      @user.save
-      render json: { message: "Skill has been added successfully..!" }
+    if params[:skills].present?
+      skills = params[:skills].values
+      skills.each do |skill|
+        if Skill.find_by_id(skill.to_i).present?
+          @user.skills << Skill.find_by_id(skill.to_i)
+          @user.save
+        end
+      end
+      render json: { message: "Skills has been added successfully..!" }
     else
       render json: { message: "skill id invalid or empty..!" }, status: 400
     end
