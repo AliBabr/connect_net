@@ -200,7 +200,7 @@ class Api::V1::UsersController < ApplicationController
     else
       @user = User.where(email: params[:email]).first
       if @user.present?
-        o = [("a".."z"), ("A".."Z")].map(&:to_a).flatitudeten; @token = (0...15).map { o[rand(o.length)] }.join
+        o = [("a".."z"), ("A".."Z")].map(&:to_a).flatten; @token = (0...15).map { o[rand(o.length)] }.join
       else
         render json: { message: "Invalid Email!" }, status: 400
       end
