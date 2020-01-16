@@ -13,13 +13,13 @@ class Api::V1::CommentsController < ApplicationController
       if comment.save
         render json: { comment_id: comment.id, text: comment.text }, status: 200
       else
-        render json: comment.errors.messages, status: 400
+        render json: { errors: comment.errors.messages }, status: 400
       end
     else
-      render json: { message: 'Post id invalid or empty..!' }, status: 400
+      render json: { message: "Post id invalid or empty..!" }, status: 400
     end
   rescue StandardError => e
-    render json: { message: 'Error: Something went wrong... ' }, status: :bad_request
+    render json: { message: "Error: Something went wrong... " }, status: :bad_request
   end
 
   def edit_comment
@@ -27,22 +27,22 @@ class Api::V1::CommentsController < ApplicationController
       comment = Comment.find_by_id(params[:comment_id].to_i)
       comment.update(comment_params)
       if comment.errors.any?
-        render json: comment.errors.messages, status: 400
+        render json: { errors: comment.errors.messages }, status: 400
       else
         render json: { comment_id: comment.id, text: comment.text }, status: 200
       end
     else
-      render json: { message: 'Comment id invalid or empty..!' }, status: 400
+      render json: { message: "Comment id invalid or empty..!" }, status: 400
     end
   rescue StandardError => e
-    render json: { message: 'Error: Something went wrong... ' }, status: :bad_request
+    render json: { message: "Error: Something went wrong... " }, status: :bad_request
   end
 
   def destroy
     @comment.destroy
-    render json: { message: 'comment deleted successfully!' }, status: 200
+    render json: { message: "comment deleted successfully!" }, status: 200
   rescue StandardError => e # rescu if any exception occure
-    render json: { message: 'Error: Something went wrong... ' }, status: :bad_request
+    render json: { message: "Error: Something went wrong... " }, status: :bad_request
   end
 
   private
@@ -52,7 +52,7 @@ class Api::V1::CommentsController < ApplicationController
     if @comment.present?
       return true
     else
-      render json: { message: 'post Not found!' }, status: 404
+      render json: { message: "post Not found!" }, status: 404
     end
   end
 

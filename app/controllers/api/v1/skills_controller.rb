@@ -3,7 +3,7 @@
 class Api::V1::SkillsController < ApplicationController
   before_action :authenticate
   before_action :set_skill, only: %i[destroy]
-  before_action :is_admin, only: %i[create index destroy]
+  before_action :is_admin, only: %i[create destroy]
 
   # methode that enable disable user notification status
   def create

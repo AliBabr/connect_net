@@ -7,12 +7,12 @@ class Api::V1::NotificationsController < ApplicationController
   def toggle_notification
     @user.update(notification_params)
     if @user.errors.any?
-      render json: user.errors.messages, status: 400
+      render json: { errors: @user.errors.messages }, status: 400
     else
-      render json: { message: 'Notifications are Successfully Updated!' }, status: 200
+      render json: { message: "Notifications are Successfully Updated!" }, status: 200
     end
   rescue StandardError => e
-    render json: { message: 'Error: Something went wrong... ' }, status: :bad_request
+    render json: { message: "Error: Something went wrong... " }, status: :bad_request
   end
 
   private

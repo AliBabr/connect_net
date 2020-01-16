@@ -79,33 +79,37 @@ class Api::V1::SearchController < ApplicationController
   private
 
   def city_search(users)
-    return users.where(city: params[:city])
+    return users.city_search(params[:city]).uniq
   end
 
   def country_search(users)
-    return users.where(country: params[:country])
+    return users.country_search(params[:country]).uniq
   end
 
   def skill_search(users)
     skill_users = User.where(user_type: "professional")
-    skill = Skill.find_by_text(params[:skill])
+    skill = Skill.search(params[:skill])
     if skill.present?
-      skill_users = skill.users
+      skill.each do |s|
+        skill_users = s.users
+      end
     end
 
     return skill_users
   end
 
   def field_search(users)
-    field = Category.find_by_title(params[:field])
+    field = Category.search(params[:field])
+    field = field.uniq
     field_users = []
     search_users = []
     if field.present?
-      roles = field.roles
-      roles.each do |role|
-        field_users << role.user
+      field.each do |f|
+        roles = f.roles
+        roles.each do |role|
+          field_users << role.user
+        end
       end
-
       field_users.each do |user|
         u = users.find_by_id(user.id)
         if u.present?

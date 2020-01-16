@@ -9,7 +9,7 @@ class Api::V1::PaymentController < ApplicationController
     if params[:card_token].present?
       @user.update(stripe_card_token: params[:card_token])
       if @user.errors.any?
-        render json: @user.errors.messages, status: 400
+        render json: { errors: @user.errors.messages }, status: 400
       else
         render json: { message: "Card token has been saved successfully..!" }, status: 200
       end
@@ -24,7 +24,7 @@ class Api::V1::PaymentController < ApplicationController
     if params[:stripe_user_id].present?
       @user.update(stripe_user_id: params[:stripe_user_id])
       if @user.errors.any?
-        render json: @user.errors.messages, status: 400
+        render json: { errors: @user.errors.messages }, status: 400
       else
         render json: { message: "Stripe user has been saved successfully..!" }, status: 200
       end

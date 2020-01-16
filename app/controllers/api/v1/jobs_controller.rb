@@ -17,7 +17,7 @@ class Api::V1::JobsController < ApplicationController
       image_url = url_for(@user.profile_photo) if @user.profile_photo.attached?
       render json: { first_name: @user.first_name, last_name: @user.last_name, profile_photo: image_url, job_id: job.id, title: job.title, description: job.description, media: media, posted_date: job.created_at }, status: 200
     else
-      render json: job.errors.messages, status: 400
+      render json: { errors: job.errors.messages }, status: 400
     end
   rescue StandardError => e
     render json: { message: "Error: Something went wrong... " }, status: :bad_request
@@ -51,7 +51,7 @@ class Api::V1::JobsController < ApplicationController
       if application.save
         render json: { application_id: application.id, cover_description: application.cover_description, bid_price: application.bid_price, required_days: application.required_days }, status: 200
       else
-        render json: application.errors.messages, status: 400
+        render json: { errors: job.errors.messages }, status: 400
       end
     else
       render json: { message: "job id invalid or empty..!" }, status: 400

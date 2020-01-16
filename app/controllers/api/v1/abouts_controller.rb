@@ -11,7 +11,7 @@ class Api::V1::AboutsController < ApplicationController
       if about.save
         render json: { about: about.text }, status: 200
       else
-        render json: about.errors.messages, status: 400
+        render json: { errors: about.errors.messages }, status: 400
       end
     else
       render json: { message: "text can't be blank...!" }, status: 400
@@ -24,7 +24,7 @@ class Api::V1::AboutsController < ApplicationController
     if params[:text].present?
       about = About.first.update(text: params[:text])
       if about.errors.any?
-        render json: about.errors.messages, status: 400
+        render json: { errors: about.errors.messages }, status: 400
       else
         render json: { about: about.text }, status: 200
       end

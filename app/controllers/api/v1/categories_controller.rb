@@ -9,7 +9,7 @@ class Api::V1::CategoriesController < ApplicationController
   def create
     category = Category.create(category_params)
     if category.errors.any?
-      render json: category.errors.messages, status: 400
+      render json: { errors: category.errors.messages }, status: 400
     else
       render json: { id: category.id, title: category.title }, status: 200
     end

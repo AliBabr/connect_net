@@ -62,7 +62,7 @@ class Api::V1::UsersController < ApplicationController
           end
           sign_up_helper(user)
         else
-          render json: user.errors.messages, status: 400
+          render json: { errors: user.errors.messages }, status: 400
         end
       else
         render json: { message: "Role can't blank.." }, status: 400
@@ -86,7 +86,7 @@ class Api::V1::UsersController < ApplicationController
           end
           sign_up_helper(user)
         else
-          render json: user.errors.messages, status: 400
+          render json: { errors: user.errors.messages }, status: 400
         end
       else
         render json: { message: "Role & security should be present" }, status: 400
@@ -110,7 +110,7 @@ class Api::V1::UsersController < ApplicationController
   def update_account
     @user.update(user_params)
     if @user.errors.any?
-      render json: @user.errors.messages, status: 400
+      render json: { errors: @user.errors.messages }, status: 400
     else
       image_url = ""; category = ""
       category = @user.role.category.title if @user.role.category.present?
@@ -127,7 +127,7 @@ class Api::V1::UsersController < ApplicationController
       if params[:new_password].present?
         @user.update(password: params[:new_password])
         if @user.errors.any?
-          render json: @user.errors.messages, status: 400
+          render json: { errors: user.errors.messages }, status: 400
         else
           render json: { message: "Password updated successfully!" }, status: 200
         end

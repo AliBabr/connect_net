@@ -37,6 +37,22 @@ class User < ApplicationRecord
     user.authentication_token == auth_token if user.present?
   end
 
+  def self.city_search(pattern)
+    if pattern.blank? # blank? covers both nil and empty string
+      all
+    else
+      where("city LIKE ? OR city LIKE ?", "%#{pattern.upcase}%", "%#{pattern.downcase}%")
+    end
+  end
+
+  def self.country_search(pattern)
+    if pattern.blank? # blank? covers both nil and empty string
+      all
+    else
+      where("country LIKE ? OR country LIKE ?", "%#{pattern.upcase}%", "%#{pattern.downcase}%")
+    end
+  end
+
   protected
 
   def password_required?
