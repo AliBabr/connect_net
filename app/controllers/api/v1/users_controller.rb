@@ -4,6 +4,7 @@ class Api::V1::UsersController < ApplicationController
   before_action :authenticate, only: %i[update_account update_password user_data log_out get_user get_twillio_token] # callback for validating user
   before_action :forgot_validation, only: [:forgot_password]
   before_action :before_reset, only: [:reset_password]
+  before_action :set_user, only: %i[get_user get_ratings]
 
   # Method which accept credential from user and sign in and return user data with authentication token
   def sign_in
@@ -44,9 +45,29 @@ class Api::V1::UsersController < ApplicationController
 
   def get_user
     image_url = ""; category = ""
-    category = @user.role.category.title if @user.role.category.present?
+    category = @param_user.role.category.title if @user.role.category.present?
     image_url = url_for(@user.profile_photo) if @user.profile_photo.attached?
     render json: { first_name: @user.first_name, last_name: @user.last_name, email: @user.email, profile_photo: image_url, role: @user.role.role_type, category: category, city: @user.city, country: @user.country, latitude: @user.latitude, longitude: @user.longitude }, status: 200
+  rescue StandardError => e # rescue if any exception occurr
+    render json: { message: "Error: Something went wrong... " }, status: 400
+  end
+
+  def get_ratings
+    all_ratings = ""
+    if @param_user.role.role_type == "professional"
+      feedbacks = Feedback.where(professional_id: @param_user.id)
+      avarage_rating = feedbacks.pluck(:professional_rating).sum.to_f / feedbacks.count.to_f
+      feedbacks.each do |feedback|
+        all_ratings << { feedback_id: feedback.id, review: feedback.professional_feedback, rating: professional_rating, job: feedback.job }
+      end
+    else
+      feedbacks = Feedback.where(customer_id: @param_user.id)
+      avarage_rating = feedbacks.pluck(:customer_rating).sum.to_f / feedbacks.count.to_f
+      feedbacks.each do |feedback|
+        all_ratings << { feedback_id: feedback.id, review: feedback.customer_feedback, rating: customer_rating, job: feedback.job }
+      end
+    end
+    render json: {ratings: all_ratings, avarage_rating: avarage_rating}, status: 200
   rescue StandardError => e # rescue if any exception occurr
     render json: { message: "Error: Something went wrong... " }, status: 400
   end
@@ -258,5 +279,14 @@ class Api::V1::UsersController < ApplicationController
       end
     end
     images
+  end
+
+  def set_user # instance methode for job
+    @param_user = User.find_by_id(params[:user_id])
+    if @param_user.present?
+      return true
+    else
+      render json: { message: "User Not found!" }, status: 404
+    end
   end
 end

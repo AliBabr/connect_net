@@ -18,6 +18,7 @@ Rails.application.routes.draw do
           post :reset_password
           get :get_user
           get :get_twillio_token
+          get :get_ratings
         end
         member do
           get :reset
@@ -85,6 +86,8 @@ Rails.application.routes.draw do
           put :confirm_completion
           put :deliver_order
           get :get_order
+          get :professional_jobs
+          get :posted_jobs
         end
       end
       resources :skills do

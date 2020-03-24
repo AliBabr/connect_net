@@ -3,6 +3,8 @@
 class Api::V1::JobsController < ApplicationController
   before_action :authenticate
   before_action :set_job, only: %i[destroy]
+  before_action :set_professional, only: %i[professional_jobs posted_jobs]
+
 
   # methode that enable disable user notification status
   def create
@@ -23,13 +25,68 @@ class Api::V1::JobsController < ApplicationController
     render json: { message: "Error: Something went wrong... " }, status: :bad_request
   end
 
+  def professional_jobs
+    completed_jobs = []
+    posted_jobs = []
+    active_jobs = []
+    cancel_jobs = []
+    completed = @param_user.jobs.where(status: "done")
+    posted = @param_user.jobs.where(status: "pending")
+    active = @param_user.jobs.where(status: "active")
+    cancel = @param_user.jobs.where(status: "cancel")
+    if completed.present?
+      completed.each do |job|
+        media = media_urls(job)
+        completed_jobs << { job_id: job.id, title: job.title, description: job.description, media: media, posted_date: job.created_at, price: job.order.price }
+      end
+    end
+
+    if posted.present?
+      posted.each do |job|
+        media = media_urls(job)
+        posted_jobs << { job_id: job.id, title: job.title, description: job.description, media: media, posted_date: job.created_at, price: job.price }
+      end
+    end
+
+    if active.present?
+      active.each do |job|
+        media = media_urls(job)
+        active_jobs << { job_id: job.id, title: job.title, description: job.description, media: media, posted_date: job.created_at, price: job.price }
+      end
+    end
+
+    if cancel_jobs.present?
+      cancel_jobs.each do |job|
+        media = media_urls(job)
+        cancel_jobs << { job_id: job.id, title: job.title, description: job.description, media: media, posted_date: job.created_at, price: job.price }
+      end
+    end
+    render json: { completed_jobs: completed_jobs, posted_jobs: posted_jobs, active_jobs: active_jobs, cancel_jobs: cancel_jobs }
+  rescue StandardError => e
+    render json: { message: "Error: Something went wrong... " }, status: :bad_request
+  end
+
+  def posted_jobs
+    jobs = @param_user.jobs.where(status: "pending"); all_jobs = []
+    jobs.each do |job|
+      media = media_urls(job)
+      image_url = ""
+      image_url = url_for(job.user.profile_photo) if job.user.profile_photo.attached?
+      media = media_urls(job); image_url = ""
+      all_jobs << { first_name: job.user.first_name, last_name: job.user.last_name, profile_photo: image_url, job_id: job.id, title: job.title, description: job.description, media: media, posted_date: job.created_at, total_proposal: job.applications.count, budget: job.price, media: media }
+    end
+    render json: all_jobs, status: 200
+  rescue StandardError => e
+    render json: { message: "Error: Something went wrong... " }, status: :bad_request
+  end
+
   def index
     jobs = Job.all; all_jobs = []
     jobs.each do |job|
       media = media_urls(job)
       image_url = ""
       image_url = url_for(job.user.profile_photo) if job.user.profile_photo.attached?
-      all_jobs << { first_name: job.user.first_name, last_name: job.user.last_name, profile_photo: image_url, job_id: job.id, title: job.title, description: job.description, media: media, posted_date: job.created_at, total_proposal: job.applications.count }
+      all_jobs << { user_id: job.id, first_name: job.user.first_name, last_name: job.user.last_name, profile_photo: image_url, job_id: job.id, title: job.title, description: job.description, media: media, posted_date: job.created_at, total_proposal: job.applications.count, budget: job.price }
     end
     render json: all_jobs, status: 200
   rescue StandardError => e
@@ -144,6 +201,15 @@ class Api::V1::JobsController < ApplicationController
       return true
     else
       render json: { message: "job Not found!" }, status: 404
+    end
+  end
+
+  def set_professional # instance methode for job
+    @param_user = User.find_by_id(params[:user_id])
+    if @param_user.present?
+      return true
+    else
+      render json: { message: "User Not found!" }, status: 404
     end
   end
 
