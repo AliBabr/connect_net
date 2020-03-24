@@ -88,6 +88,7 @@ Rails.application.routes.draw do
           get :get_order
           get :professional_jobs
           get :posted_jobs
+          get :filter_job
         end
       end
       resources :skills do

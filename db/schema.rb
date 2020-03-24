@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_12_24_115120) do
+ActiveRecord::Schema.define(version: 2020_03_24_171349) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -114,6 +114,7 @@ ActiveRecord::Schema.define(version: 2019_12_24_115120) do
     t.string "status"
     t.string "price"
     t.string "deadline"
+    t.bigint "category_id"
   end
 
   create_table "likes", force: :cascade do |t|

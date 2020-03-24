@@ -4,12 +4,13 @@ class Api::V1::JobsController < ApplicationController
   before_action :authenticate
   before_action :set_job, only: %i[destroy]
   before_action :set_professional, only: %i[professional_jobs posted_jobs]
-
+  before_action :set_category, only: %i[create]
 
   # methode that enable disable user notification status
   def create
     job = Job.new(job_params)
     job.user = @user; job.status = "pending"
+    job.category_id = @category.id
     if params[:media].present?
       images = params[:media].values
       job.media = images
@@ -17,7 +18,7 @@ class Api::V1::JobsController < ApplicationController
     if job.save
       media = media_urls(job); image_url = ""
       image_url = url_for(@user.profile_photo) if @user.profile_photo.attached?
-      render json: { first_name: @user.first_name, last_name: @user.last_name, profile_photo: image_url, job_id: job.id, title: job.title, description: job.description, media: media, posted_date: job.created_at }, status: 200
+      render json: { first_name: @user.first_name, last_name: @user.last_name, profile_photo: image_url, job_id: job.id, title: job.title, description: job.description, media: media, posted_date: job.created_at, category: job.category.title }, status: 200
     else
       render json: { errors: job.errors.messages }, status: 400
     end
@@ -37,28 +38,28 @@ class Api::V1::JobsController < ApplicationController
     if completed.present?
       completed.each do |job|
         media = media_urls(job)
-        completed_jobs << { job_id: job.id, title: job.title, description: job.description, media: media, posted_date: job.created_at, price: job.order.price }
+        completed_jobs << { job_id: job.id, title: job.title, description: job.description, media: media, posted_date: job.created_at, price: job.order.price, category: job.category.title }
       end
     end
 
     if posted.present?
       posted.each do |job|
         media = media_urls(job)
-        posted_jobs << { job_id: job.id, title: job.title, description: job.description, media: media, posted_date: job.created_at, price: job.price }
+        posted_jobs << { job_id: job.id, title: job.title, description: job.description, media: media, posted_date: job.created_at, price: job.price, category: job.category.title }
       end
     end
 
     if active.present?
       active.each do |job|
         media = media_urls(job)
-        active_jobs << { job_id: job.id, title: job.title, description: job.description, media: media, posted_date: job.created_at, price: job.price }
+        active_jobs << { job_id: job.id, title: job.title, description: job.description, media: media, posted_date: job.created_at, price: job.price, category: job.category.title }
       end
     end
 
     if cancel_jobs.present?
       cancel_jobs.each do |job|
         media = media_urls(job)
-        cancel_jobs << { job_id: job.id, title: job.title, description: job.description, media: media, posted_date: job.created_at, price: job.price }
+        cancel_jobs << { job_id: job.id, title: job.title, description: job.description, media: media, posted_date: job.created_at, price: job.price, category: job.category.title }
       end
     end
     render json: { completed_jobs: completed_jobs, posted_jobs: posted_jobs, active_jobs: active_jobs, cancel_jobs: cancel_jobs }
@@ -72,21 +73,38 @@ class Api::V1::JobsController < ApplicationController
       media = media_urls(job)
       image_url = ""
       image_url = url_for(job.user.profile_photo) if job.user.profile_photo.attached?
-      media = media_urls(job); image_url = ""
-      all_jobs << { first_name: job.user.first_name, last_name: job.user.last_name, profile_photo: image_url, job_id: job.id, title: job.title, description: job.description, media: media, posted_date: job.created_at, total_proposal: job.applications.count, budget: job.price, media: media }
+      media = media_urls(job);
+      all_jobs << { user_id: job.user.id, first_name: job.user.first_name, last_name: job.user.last_name, profile_photo: image_url, job_id: job.id, title: job.title, description: job.description, media: media, posted_date: job.created_at, total_proposal: job.applications.count, budget: job.price, media: media, category: job.category.title }
     end
     render json: all_jobs, status: 200
   rescue StandardError => e
     render json: { message: "Error: Something went wrong... " }, status: :bad_request
   end
 
-  def index
-    jobs = Job.all; all_jobs = []
+
+  def filter_job
+    all_jobs = []
+    category = Category.search(params[:category]).first
+    jobs = category.jobs
     jobs.each do |job|
       media = media_urls(job)
       image_url = ""
       image_url = url_for(job.user.profile_photo) if job.user.profile_photo.attached?
-      all_jobs << { user_id: job.id, first_name: job.user.first_name, last_name: job.user.last_name, profile_photo: image_url, job_id: job.id, title: job.title, description: job.description, media: media, posted_date: job.created_at, total_proposal: job.applications.count, budget: job.price }
+      media = media_urls(job);
+      all_jobs << { user_id: job.user.id, first_name: job.user.first_name, last_name: job.user.last_name, profile_photo: image_url, job_id: job.id, title: job.title, description: job.description, media: media, posted_date: job.created_at, total_proposal: job.applications.count, budget: job.price, media: media, category: job.category.title }
+    end
+    render json: {jobs: all_jobs}, status: 200
+  rescue StandardError => e
+    render json: { message: "Error: Something went wrong... " }, status: :bad_request
+  end
+
+  def index
+    jobs = Job.all.order('created_at DESC'); all_jobs = []
+    jobs.each do |job|
+      media = media_urls(job)
+      image_url = ""
+      image_url = url_for(job.user.profile_photo) if job.user.profile_photo.attached?
+      all_jobs << { user_id: job.id, first_name: job.user.first_name, last_name: job.user.last_name, profile_photo: image_url, job_id: job.id, title: job.title, description: job.description, media: media, posted_date: job.created_at, total_proposal: job.applications.count, budget: job.price, category: job.category.title }
     end
     render json: all_jobs, status: 200
   rescue StandardError => e
@@ -210,6 +228,15 @@ class Api::V1::JobsController < ApplicationController
       return true
     else
       render json: { message: "User Not found!" }, status: 404
+    end
+  end
+
+  def set_category # instance methode for job
+    @category = Category.find_by_id(params[:category_id])
+    if @category.present?
+      return true
+    else
+      render json: { message: "category Not found!" }, status: 404
     end
   end
 
