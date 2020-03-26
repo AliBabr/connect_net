@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class Api::V1::CategoriesController < ApplicationController
-  before_action :authenticate
+  before_action :authenticate, only: %i[create, destroy]
   before_action :set_category, only: %i[destroy]
   before_action :is_admin, only: %i[create destroy]
 
