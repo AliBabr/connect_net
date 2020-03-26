@@ -17,6 +17,7 @@ gem 'geocoder', '~> 1.3'
 gem 'figaro'
 gem 'stripe'
 gem 'twilio-ruby'
+gem "rack-cors"
 # Use pry for debugging purposes
  gem 'pry'
  gem "slim-rails"
