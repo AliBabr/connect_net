@@ -8,7 +8,7 @@ gem 'rails', '~> 5.2.3'
 gem 'devise'
 gem 'simple_token_authentication', '~> 1.0'
 gem 'active_model_serializers', '~> 0.10.0'
-gem 'httparty', '~> 0.13.7'
+gem 'httparty', '~> 0.21.0'
 # Use postgresql as the database for Active Record
 gem 'pg'
 gem 'geokit'
